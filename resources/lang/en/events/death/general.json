@@ -10399,5 +10399,65 @@
                 "death": "m_c was killed by a predator on a solo hunt."
             }
             ]
-    }
+    },
+    {
+    "event_id": "gen_death_beaver",
+    "location": [
+        "forest",
+        "plains",
+        "mountainous",
+        "wetlands"
+    ],
+    "season": ["-leaf-bare"],
+    "poi": {
+        "name": ["terrain_beaverdam"]
+    },
+    "frequency": 2,
+    "event_text": "m_c stalked {POI/name/terrain_beaverdam} searching for beaver kits. As {PRONOUN/m_c/subject} pounced an adult met {PRONOUN/m_c/object} with a lethal bite.",
+    "m_c": {
+        "dies": true,
+        "age": [
+        "-kitten",
+        "-newborn"
+        ],
+        "skill": [
+        "-HUNTER,3",
+        "-FIGHTER,3"
+        ]
+    },
+    "history": [
+        {
+            "cats": ["m_c"],
+            "death": "m_c died after {PRONOUN/m_c/subject} tried to hunt beaver kits."
+        }
+    ]
+    },
+    {
+    "event_id": "gen_death_rippletailref",
+    "location": [
+        "forest",
+        "plains",
+        "mountainous",
+        "wetlands"
+    ],
+    "season": ["any"],
+    "poi":{
+        "name": ["terrain_beaverdam"]
+    },
+    "frequency": 1,
+    "event_text": "m_c and r_c, played in the water around {POI/name/terrain_beaverdam}. The displeased beavers caught m_c, while r_c could only watch in horror as m_c drifted off.",
+    "m_c": {
+        "age": ["-kitten","-newborn"],
+        "dies": true
+    },
+    "r_c": {
+        "age": ["-kitten","-newborn"]
+    },
+    "history": [
+        {
+            "cats": ["m_c"],
+        "death": "m_c was killed by beavers whilst playing."
+        }
+    ]
+}
 ]
