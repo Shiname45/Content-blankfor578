@@ -8,10 +8,12 @@ from scripts.cat.pelts import Pelt
 from scripts.cat.personality import Personality
 from scripts.cat_relations.enums import RelType, rel_type_tiers, RelTier
 from scripts.cat.enums import CatRank, CatAge, CatCompatibility, CatGroup, CatStanding
+from scripts.clan_package.settings import get_clan_setting
 from scripts.clan_resources.point_of_interest import (
     get_poi_names_set,
     get_poi_tags_set,
     get_poi_categories_set,
+    get_poi_from_constraints,
 )
 from scripts.cat_relations.relationship import Relationship, create_one_relationship
 from scripts.config import get_config
@@ -146,6 +148,9 @@ def event_for_tags(tags: list, cat, other_cat=None) -> bool:
         if _poss in tags and mode != _poss:
             return False
 
+    if "disaster" in tags and not get_clan_setting("disasters"):
+        return False
+
     # check romance
     if "romance" in tags and other_cat and other_cat not in get_possible_mates(cat):
         return False
@@ -274,19 +279,11 @@ def event_for_poi(pois: dict[str, list]) -> bool:
     if not get_poi_names_set():
         return False  # we know they're requesting something
 
-    has_matching_name, has_matching_tags, has_matching_categories = False, False, False
-    if "name" in pois:
-        has_matching_name = not set(pois.get("name", [])).isdisjoint(
-            get_poi_names_set()
+    return bool(
+        get_poi_from_constraints(
+            pois.get("name"), pois.get("tags"), pois.get("category")
         )
-
-    if "tags" in pois:
-        has_matching_tags = not set(pois.get("tags", [])).isdisjoint(get_poi_tags_set())
-
-    if "category" in pois:
-        has_matching_categories = pois["category"] in get_poi_categories_set()
-
-    return has_matching_name or has_matching_tags or has_matching_categories
+    )
 
 
 def event_for_reputation(required_rep: list) -> bool:
@@ -1119,6 +1116,7 @@ def cat_for_event(
     # gather funcs to use
     func_dict = {
         "age": _get_cats_with_age,
+        "gender": _get_cats_with_gender,
         "status": _get_cats_with_status,
         "past_status": _get_cats_with_status_history,
         "stat": _get_cats_with_stat,
@@ -1356,6 +1354,19 @@ def _get_cats_with_age(cat_list: list, ages: list[str]) -> list:
         return [kitty for kitty in cat_list if kitty.age in ages]
 
 
+def _get_cats_with_gender(cat_list: list, genders: list[str]) -> list:
+    if not genders:
+        return cat_list
+
+    is_exclusionary = _check_for_exclusionary_value(genders)
+
+    if is_exclusionary:
+        ages = [x.replace("-", "") for x in genders]
+        return [kitty for kitty in cat_list if kitty.gender not in genders]
+    else:
+        return [kitty for kitty in cat_list if kitty.gender in genders]
+
+
 def _get_cats_with_status(cat_list: list, statuses: list[str]) -> list:
     """
     Checks cat_list against required statuses and returns qualifying cats.
@@ -1471,14 +1482,14 @@ def _get_cats_from_group(
                     c
                     for c in cat_list
                     if c.status.group
-                    == already_involved_cats[cat_to_match].status.group
+                    != already_involved_cats[cat_to_match].status.group
                 ]
             else:
                 cat_list = [
                     c
                     for c in cat_list
                     if c.status.group
-                    != already_involved_cats[cat_to_match].status.group
+                    == already_involved_cats[cat_to_match].status.group
                 ]
             remaining_tags.remove(tag)
 

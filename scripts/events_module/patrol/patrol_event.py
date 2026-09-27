@@ -5,7 +5,7 @@ from typing import Union, Literal, Optional
 
 from scripts.cat.personality import Personality
 from scripts.cat.skills import SkillPath
-from scripts.clan_resources.herb.herb import HERBS
+from scripts.game_structure.constants import HERBS
 from scripts.events_module.parameter_dicts import (
     InvolvedCatDict,
     RelationshipConstraintDict,
@@ -93,6 +93,9 @@ class PatrolEvent:
         self.new_cat = self._get_new_cat()
         self.other_clan = self._get_other_clan()
         self.herbs_given = self._get_herbs_given()
+
+    def __eq__(self, other):
+        return other == self.event_id
 
     def _get_new_cat(self) -> bool:
         """Returns boolean if there are any outcomes that results in
